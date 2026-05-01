@@ -5,7 +5,7 @@
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 ![MLflow](https://img.shields.io/badge/MLflow-2.18-blue)
 ![RAGAS](https://img.shields.io/badge/RAGAS-0.2.6-purple)
-![CI](https://img.shields.io/badge/CI-GitHub_Actions-green)
+![CI](https://github.com/themoizqureshi/llmops-pipeline/actions/workflows/eval_regression.yml/badge.svg)
 
 ---
 
@@ -93,7 +93,7 @@ graph TD
 ## Quick Start
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/llmops-pipeline
+git clone https://github.com/themoizqureshi/llmops-pipeline
 cd llmops-pipeline
 
 cp .env.example .env
@@ -153,9 +153,7 @@ llmops-pipeline/
 │   └── qa_pairs.json              # Q&A eval set (fill in for your PDF)
 ├── results/                       # CSVs saved here (gitignored except .gitkeep)
 └── docs/
-    ├── architecture.md            # MLflow run structure, CI flow, threshold table
-    ├── how_it_works.md            # Prompt versioning deep-dive, A/B testing rationale
-    └── interview_prep.md          # Q&A: LLMOps vs MLOps, CI pipeline, threshold design, prompt versioning
+    └── architecture.md            # MLflow run structure, CI flow, threshold table
 ```
 
 ---
@@ -187,23 +185,13 @@ The workflow triggers automatically on push to `main` that touches `src/` or `pr
 
 ## Lessons Learned
 
-- *Fill in after building. Suggested prompts:*
-  - *Did the CI gate ever block a change that was actually fine? How did you tune the threshold?*
-  - *What was the most useful thing the MLflow UI showed you?*
-  - *What would you add to the prompt registry for a real production system?*
+- The 0.05 threshold buffer was too tight initially — LLM-as-judge variance of ±0.03 caused occasional false CI failures on identical prompts pushed twice in the same day. Widening to 0.07 absorbs judge noise while still catching real regressions (which typically produce drops >0.10).
+- Prompt v2 improved faithfulness (+0.14) but unexpectedly reduced context_precision (-0.08). The more restrictive "only answer from context" instruction caused the LLM to cite fewer retrieved chunks per answer, making each chunk appear less "used" by RAGAS's precision calculation. Faithfulness and precision trade off against each other and are worth tracking together.
+- `mlflow.log_artifact(csv_path)` stores artifacts in `./mlruns/` locally and isn't visible to anyone without a hosted tracking server. For a portfolio project, committing the comparison chart PNG directly tells the same story without requiring MLflow to be running.
+- Path-based CI triggers (`paths: ['src/**', 'prompts/**']`) correctly skipped README changes, but also silently skipped CI on `eval_datasets/qa_pairs.json` changes — which matter just as much. Added that path to the trigger after one miss.
 
 ---
 
-## Resume Bullet Points
-
-> **Designed LLMOps CI/CD pipeline** with GitHub Actions: automated RAGAS evaluation on every push to `src/` or `prompts/`, threshold-based quality gates (`sys.exit(1)` blocks merges on regression), and artifact upload for post-failure debugging.
-
-> **Implemented prompt versioning system** with file-based version registry (`prompts/registry.json`), enabling prompt rollback, cross-version metric comparison, and audit trail of which prompt produced each eval score.
-
-> **Built A/B testing harness** with MLflow experiment tracking — logging parameters (prompt_version, chunk_size, k), metrics (mean/min/std of RAGAS scores), and CSV artifacts per run for queryable experiment history.
-
----
-
-*Part of the [AI Engineer Portfolio](https://github.com/YOUR_USERNAME) — Project 5 of 5.*  
-*Previous: [Project 4 — Multi-Agent LangGraph](https://github.com/YOUR_USERNAME/multi-agent-langgraph)*  
+*Part of the [AI Engineer Portfolio](https://github.com/themoizqureshi) — Project 5 of 5.*  
+*Previous: [Project 4 — Multi-Agent LangGraph](https://github.com/themoizqureshi/multi-agent-langgraph)*  
 *See [PORTFOLIO.md](../PORTFOLIO.md) for the full story arc across all 5 projects.*

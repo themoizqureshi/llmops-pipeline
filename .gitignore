@@ -11,3 +11,7 @@ mlruns/
 chroma_db/
 results/*.csv
 results/*.png
+
+# Private docs
+docs/how_it_works.md
+docs/interview_prep.md
