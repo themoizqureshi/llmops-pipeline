@@ -1,0 +1,30 @@
+{
+  "versions": [
+    {
+      "version": "v1",
+      "file": "prompts/v1_baseline.txt",
+      "description": "Baseline prompt — minimal instructions, no anti-hallucination constraints",
+      "created": "2024-01-01",
+      "metrics": {
+        "faithfulness": null,
+        "answer_relevancy": null,
+        "context_recall": null,
+        "context_precision": null
+      }
+    },
+    {
+      "version": "v2",
+      "file": "prompts/v2_improved.txt",
+      "description": "Improved prompt — explicit ONLY-context constraint, direct answer instruction, no qualifications",
+      "created": "2024-01-01",
+      "metrics": {
+        "faithfulness": null,
+        "answer_relevancy": null,
+        "context_recall": null,
+        "context_precision": null
+      }
+    }
+  ],
+  "current_production": "v1",
+  "notes": "Update metrics after each eval run. Increment version for any prompt change."
+}

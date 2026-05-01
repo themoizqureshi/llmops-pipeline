@@ -1,0 +1,17 @@
+[
+  {
+    "question": "What is the main topic of this document?",
+    "ground_truth": "Replace with the actual answer from your PDF.",
+    "difficulty": "easy"
+  },
+  {
+    "question": "What specific data or metrics are mentioned?",
+    "ground_truth": "Replace with specific figures from your PDF (e.g. '47.2M revenue, +12% YoY').",
+    "difficulty": "medium"
+  },
+  {
+    "question": "What conclusions does the author draw?",
+    "ground_truth": "Replace with the actual conclusions from your PDF.",
+    "difficulty": "hard"
+  }
+]

@@ -1,0 +1,56 @@
+name: RAG Evaluation Regression Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'        # Code changes
+      - 'prompts/**'    # Prompt changes — these must also pass the quality gate
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'prompts/**'
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run unit tests
+        run: pytest tests/ -v --tb=short
+
+      - name: Run RAG regression evaluation
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+          LANGCHAIN_TRACING_V2: "true"
+          LANGCHAIN_PROJECT: "ci-regression-${{ github.sha }}"
+        run: python src/regression_checker.py
+        # Exits with code 1 if any metric drops below threshold → fails the build
+
+      - name: Upload evaluation results
+        uses: actions/upload-artifact@v4
+        if: always()   # Upload even if regression check failed — needed for debugging
+        with:
+          name: eval-results-${{ github.sha }}
+          path: results/
+          retention-days: 30
