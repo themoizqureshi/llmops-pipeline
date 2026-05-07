@@ -5,7 +5,18 @@
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 ![MLflow](https://img.shields.io/badge/MLflow-2.18-blue)
 ![RAGAS](https://img.shields.io/badge/RAGAS-0.2.6-purple)
+![OpenRouter](https://img.shields.io/badge/OpenRouter-Gemini_2.0_Flash-cyan)
 ![CI](https://github.com/themoizqureshi/llmops-pipeline/actions/workflows/eval_regression.yml/badge.svg)
+
+---
+
+## Recent Changes
+
+| Date | Change | Reason |
+|------|--------|--------|
+| May 2026 | Added OpenRouter as primary LLM provider (`OPENROUTER_API_KEY`) | Google free-tier daily quota hit frequently; OpenRouter routes to `google/gemini-2.0-flash-001` with no daily cap — critical for CI runs that can't afford 429 errors |
+| May 2026 | Added `OPENROUTER_API_KEY` to CI workflow env block | CI uses OpenRouter as judge LLM; secret added alongside `GOOGLE_API_KEY` as fallback |
+| May 2026 | Updated `.env.example` with `OPENROUTER_API_KEY` | Consistent with Projects 1–4; new contributors should use OpenRouter first |
 
 ---
 
@@ -18,7 +29,7 @@
 | **A/B Testing** | Single-variable experiments, controlled comparison, statistical interpretation |
 | **CI/CD for AI** | GitHub Actions, path-based triggers, `sys.exit(1)` quality gates, artifact upload |
 | **Prompt Engineering** | Registry pattern, version → file → metric mapping, rollback capability |
-| **Evaluation** | RAGAS with Gemini-as-judge (reused from Project 2) |
+| **Evaluation** | RAGAS with Gemini-as-judge via OpenRouter (reused from Project 2) |
 | **Software Engineering** | pytest with `tmp_path`, clean threshold logic, separation of concerns |
 
 ---
@@ -46,7 +57,7 @@ graph TD
         PM --> RG["registry.json\n{version, file, metrics}"]
         PM --> CH[RAG Chain Builder]
         EV["eval_datasets/qa_pairs.json"] --> CH
-        CH --> RA["RAGAS evaluate()\nGemini-as-judge"]
+        CH --> RA["RAGAS evaluate()\nGemini via OpenRouter"]
         RA --> DF[Results DataFrame]
         DF --> MLF["MLflow\nparams + metrics + CSV artifact"]
         MLF --> UI["mlflow ui\nlocalhost:5000"]
@@ -83,7 +94,7 @@ graph TD
 |-----------|-----------|---------|-----|
 | Experiment Tracking | MLflow | 2.18.0 | Industry standard; UI comparison, artifact storage, query API |
 | Evaluation | RAGAS | 0.2.6 | Reuses Project 2 eval framework; consistent metrics across projects |
-| Judge LLM | Gemini 2.0 Flash | `langchain-google-genai` | Free, consistent with Project 2 |
+| Judge LLM | Gemini 2.0 Flash via OpenRouter | `langchain-openai` | No daily quota cap; OpenAI-compatible endpoint; falls back to direct Gemini |
 | CI/CD | GitHub Actions | — | Free for public repos; integrates with PR merge protection |
 | Quality Gate | Python `sys.exit(1)` | — | Simplest contract with CI: non-zero exit = failure |
 | Prompt Registry | JSON file | — | Human-readable, git-diffs cleanly, no database needed at this scale |
@@ -97,7 +108,7 @@ git clone https://github.com/themoizqureshi/llmops-pipeline
 cd llmops-pipeline
 
 cp .env.example .env
-# Add GOOGLE_API_KEY (same as Projects 1-2)
+# Add OPENROUTER_API_KEY (recommended — no daily quota) and optionally GOOGLE_API_KEY
 
 uv venv && source .venv/bin/activate
 uv pip install -r requirements.txt
@@ -164,7 +175,8 @@ To activate the CI pipeline, add these secrets in your repo's Settings → Secre
 
 | Secret | Value |
 |--------|-------|
-| `GOOGLE_API_KEY` | Your Google AI Studio key |
+| `OPENROUTER_API_KEY` | Your OpenRouter key (primary judge LLM — no daily quota) |
+| `GOOGLE_API_KEY` | Your Google AI Studio key (optional fallback) |
 | `LANGCHAIN_API_KEY` | Your LangSmith key (optional) |
 
 The workflow triggers automatically on push to `main` that touches `src/` or `prompts/`.
