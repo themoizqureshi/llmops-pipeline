@@ -11,6 +11,9 @@ mlruns/
 chroma_db/
 results/*.csv
 results/*.png
+# Exception: bundled demo results for standalone demo mode
+!results/sample_v1_baseline.csv
+!results/sample_v2_improved.csv
 
 # Private docs
 docs/how_it_works.md

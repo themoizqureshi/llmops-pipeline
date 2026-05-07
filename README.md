@@ -169,6 +169,55 @@ llmops-pipeline/
 
 ---
 
+## Testing with Your Own Data
+
+**Demo mode (no API key, zero setup):**
+```bash
+streamlit run app.py
+# Loads pre-computed v1 vs v2 results from results/sample_*.csv
+```
+
+**Replacing the prompts:**
+
+1. Write your improved prompt in `prompts/v3_your_prompt.txt`
+2. Register it in `prompts/registry.json`:
+```json
+{
+  "version": "v3",
+  "file": "prompts/v3_your_prompt.txt",
+  "description": "What you changed and why",
+  "created": "2025-01-20",
+  "metrics": {}
+}
+```
+
+**Running your own A/B test:**
+
+```bash
+# Option A — run the full pipeline (requires OPENROUTER_API_KEY + a results CSV from Project 2)
+# Option B — check regression against any existing CSV
+python src/regression_checker.py --results results/your_eval.csv
+
+# Option C — use the Streamlit UI
+streamlit run app.py
+# Go to Regression Gate tab → switch to "Run regression check" → select your CSV
+```
+
+**Viewing MLflow experiment history:**
+```bash
+mlflow ui   # opens at http://localhost:5000
+```
+Each `log_eval_run()` call creates a tracked run with parameters, metrics (mean/min/std), and the results CSV as a downloadable artifact.
+
+**Promoting a new prompt version to production:**
+```bash
+# After eval confirms v3 beats v2:
+# Edit prompts/registry.json → set "current_production": "v3"
+# Commit and push — CI will validate the new prompt on next push to src/ or prompts/
+```
+
+---
+
 ## CI Setup (GitHub Secrets Required)
 
 To activate the CI pipeline, add these secrets in your repo's Settings → Secrets:

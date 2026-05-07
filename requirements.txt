@@ -1,3 +1,4 @@
+streamlit>=1.40.0
 mlflow==2.18.0
 ragas==0.2.6
 langchain==0.3.7
