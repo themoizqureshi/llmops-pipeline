@@ -253,6 +253,12 @@ The workflow triggers automatically on push to `main` that touches `src/` or `pr
 
 ---
 
+## Testing Screenshot
+
+![LLMOps Pipeline Demo](screenshots/screenshot1.png)
+
+---
+
 *Part of the [AI Engineer Portfolio](https://github.com/themoizqureshi) — Project 5 of 5.*  
 *Previous: [Project 4 — Multi-Agent LangGraph](https://github.com/themoizqureshi/multi-agent-langgraph)*  
 *See [PORTFOLIO.md](../PORTFOLIO.md) for the full story arc across all 5 projects.*
